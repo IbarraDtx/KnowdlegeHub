@@ -8,8 +8,6 @@ const contentSchema = new moongose.Schema({
         enum: ['video', 'article', 'documentation', 'note', 'project'],
         required: true
     },
-
-    content: {type: String, required: true},
     tags: [{ type: String }],
     category: { type: String, required: true },
     createdBy: { type: moongose.Schema.Types.ObjectId, ref: 'User', required: true },
