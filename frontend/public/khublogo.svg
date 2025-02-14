@@ -1,0 +1,20 @@
+<svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Letra K estilizada -->
+  <path d="M60 20 L60 60 M60 40 L80 20 M60 40 L80 60" 
+        stroke="#4A90E2" 
+        stroke-width="6" 
+        fill="none"
+        stroke-linecap="round" />
+  
+  <!-- Puntos conectados formando una H -->
+  <circle cx="100" cy="25" r="5" fill="#4A90E2"/>
+  <circle cx="100" cy="55" r="5" fill="#4A90E2"/>
+  <circle cx="120" cy="40" r="8" fill="#4A90E2"/>
+  <circle cx="140" cy="25" r="5" fill="#4A90E2"/>
+  <circle cx="140" cy="55" r="5" fill="#4A90E2"/>
+  
+  <!-- Líneas conectoras -->
+  <line x1="100" y1="25" x2="100" y2="55" stroke="#4A90E2" stroke-width="2"/>
+  <line x1="140" y1="25" x2="140" y2="55" stroke="#4A90E2" stroke-width="2"/>
+  <line x1="100" y1="40" x2="140" y2="40" stroke="#4A90E2" stroke-width="2"/>
+</svg>
