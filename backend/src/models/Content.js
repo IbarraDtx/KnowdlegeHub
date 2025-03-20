@@ -15,5 +15,6 @@ const contentSchema = new moongose.Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
+
 const Content = moongose.model('Content', contentSchema);
 module.exports = Content;

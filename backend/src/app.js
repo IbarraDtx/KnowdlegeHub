@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-const routes = require('./routes/INDEX.JS');
+const routes = require('./routes/index.js');
 const path = require('path');
 
 dotenv.config({ path: './backend/src/.env' });
