@@ -1,5 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar, Typography, Box, Container, Grid, Paper, IconButton, InputBase, Avatar, Menu, MenuItem, Divider, Button, List, ListItem, ListItemAvatar, ListItemText, Collapse, CircularProgress} from "@mui/material";
+import React, { useState, useEffect, useMemo } from "react";
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Box, 
+  Container, 
+  Grid, 
+  Paper, 
+  IconButton, 
+  InputBase, 
+  Avatar, 
+  Menu, 
+  MenuItem, 
+  Divider, 
+  Button, 
+  List, 
+  ListItem, 
+  ListItemAvatar, 
+  ListItemText, 
+  Collapse, 
+  CircularProgress,
+  Breadcrumbs,
+  Link,
+  Tooltip,
+  Badge,
+  Drawer,
+  Skeleton,
+  useTheme
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Zoom, Fade } from "react-awesome-reveal";
 import { useMediaQuery } from "@mui/material";
@@ -9,36 +37,315 @@ import CreateIcon from '@mui/icons-material/Create';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SlideShowIcon from '@mui/icons-material/Slideshow';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import FolderIcon from '@mui/icons-material/Folder';
+import HomeIcon from '@mui/icons-material/Home';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import MenuIcon from '@mui/icons-material/Menu';
+import { Edit } from "@mui/icons-material";
 
-const Home = () => {
+// Componente de Header/Navbar
+const Header = ({ onMenuClick }) => {
+  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const open = Boolean(anchorEl);
+  const isMobile = useMediaQuery("(max-width:600px)");
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleClose();
+    navigate("/");
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Implementar la búsqueda real aquí
+    console.log("Buscando:", searchTerm);
+  };
+
+  return (
+    <AppBar position="static" sx={{ backgroundColor: "#ffffff", boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
+      <Toolbar>
+        {isMobile && (
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={onMenuClick}
+            sx={{ mr: 1, color: "#4A90E2" }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+
+        <Typography variant="h6" sx={{ flexGrow: 0, color: "#4A90E2", fontWeight: "bold", marginRight: 4 }}>
+          KHub
+        </Typography>
+        
+        <Paper
+          component="form"
+          onSubmit={handleSearch}
+          sx={{ 
+            p: '2px 4px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            width: isMobile ? '100%' : 400, 
+            mr: 2, 
+            borderRadius: "20px" 
+          }}
+        >
+          <InputBase
+            sx={{ ml: 1, flex: 1 }}
+            placeholder="Buscar recursos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            inputProps={{ 'aria-label': 'buscar recursos' }}
+          />
+          <IconButton type="submit" sx={{ p: '10px' }} aria-label="buscar">
+            <SearchIcon />
+          </IconButton>
+        </Paper>
+
+        <Box sx={{ flexGrow: 1 }} />
+
+        {!isMobile && (
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Edit />}
+            onClick={() => navigate("/Update")}
+            sx={{ mr: 2 }}
+          >
+            Editar recursos
+          </Button>
+        )}
+        
+        <Tooltip title="Notificaciones">
+          <IconButton sx={{ mr: 1 }}>
+            <Badge badgeContent={3} color="error">
+              <NotificationsIcon color="action" />
+            </Badge>
+          </IconButton>
+        </Tooltip>
+        
+        <Tooltip title="Perfil">
+          <IconButton
+            onClick={handleClick}
+            size="small"
+            sx={{ ml: 1 }}
+            aria-controls={open ? 'account-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+          >
+            <Avatar
+              sx={{
+                width: 40,
+                height: 40,
+                bgcolor: '#4A90E2',
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                }
+              }}
+            >
+              OP
+            </Avatar>
+          </IconButton>
+        </Tooltip>
+        
+        <Menu
+          anchorEl={anchorEl}
+          id="account-menu"
+          open={open}
+          onClose={handleClose}
+          onClick={handleClose}
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              overflow: 'visible',
+              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+              mt: 1.5,
+              '& .MuiAvatar-root': {
+                width: 32,
+                height: 32,
+                ml: -0.5,
+                mr: 1,
+              },
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+              },
+            },
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <MenuItem>
+            <Avatar /> Perfil
+          </MenuItem>
+          <MenuItem>
+            <AccountCircleIcon sx={{ mr: 1 }} /> Mi cuenta
+          </MenuItem>
+          <Divider />
+          <MenuItem>
+            <SettingsIcon sx={{ mr: 1 }} /> Configuración
+          </MenuItem>
+          <MenuItem onClick={handleLogout}>
+            <LogoutIcon sx={{ mr: 1 }} /> Cerrar sesión
+          </MenuItem>
+        </Menu>
+      </Toolbar>
+    </AppBar>
+  );
+};
+
+// Componente de Estadísticas 
+const StatsPanel = () => {
+  const stats = [
+    { value: 150, label: "Recursos Compartidos" },
+    { value: 45, label: "Contribuidores" },
+    { value: 89, label: "Recursos Guardados" },
+    { value: 12, label: "Categorías" }
+  ];
+
+  return (
+    <Zoom>
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          p: 3, 
+          borderRadius: 2, 
+          backgroundColor: '#4A90E2', 
+          color: 'white',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
+          }
+        }}
+      >
+        <Typography variant="h5" gutterBottom fontWeight="bold">
+          Panel de Conocimiento
+        </Typography>
+        <Grid container spacing={3} sx={{ mt: 1 }}>
+          {stats.map((stat, index) => (
+            <Grid item xs={6} md={3} key={index}>
+              <Box sx={{ 
+                textAlign: 'center',
+                p: 1,
+                borderRadius: 1,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.1)'
+                }
+              }}>
+                <Typography variant="h4">{stat.value}</Typography>
+                <Typography variant="body2">{stat.label}</Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      </Paper>
+    </Zoom>
+  );
+};
+
+// Componente de Tarjetas de Acción
+const ActionCards = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:600px)");
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
   
-  // Estados para recursos recientes
-  const [mostrarPreview, setMostrarPreview] = useState(true); // Cambiado a true por defecto
-  const [recursos, setRecursos] = useState([]);
-  const [cargando, setCargando] = useState(true); // Cambiado a true por defecto
+  const actions = [
+    {
+      title: "Crear Recurso",
+      description: "Comparte documentación, tutoriales o guías útiles",
+      icon: <CreateIcon sx={{ fontSize: 40, color: '#FADA7A', mb: 1 }} />,
+      action: () => navigate('/resource')
+    },
+    {
+      title: "Mis Guardados",
+      description: "Accede a tus recursos guardados",
+      icon: <BookmarkIcon sx={{ fontSize: 40, color: '#55AD9B', mb: 1 }} />,
+      action: () => navigate('/save')
+    }
+  ];
+  
+  return (
+    <Fade>
+      <Grid container spacing={2}>
+        {actions.map((action, index) => (
+          <Grid item xs={12} sm={6} key={index}>
+            <Paper
+              component="button"
+              onClick={action.action}
+              sx={{
+                p: isMobile ? 2 : 3,
+                height: '100%',
+                width: '100%',
+                borderRadius: 2,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+                }
+              }}
+            >
+              {action.icon}
+              <Typography variant="h6" gutterBottom fontWeight="bold">
+                {action.title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" textAlign="center">
+                {action.description}
+              </Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+    </Fade>
+  );
+};
 
-  // Función para obtener recursos recientes (última hora)
+// Componente de Recursos Recientes
+const RecentResources = () => {
+  const [mostrarPreview, setMostrarPreview] = useState(true);
+  const [recursos, setRecursos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [filterOpen, setFilterOpen] = useState(false);
+
   const obtenerRecursosRecientes = async () => {
     setCargando(true);
     try {
-      // Simulación de llamada a API
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const ahora = new Date();
       const unaHoraAtras = new Date(ahora.getTime() - 60 * 60 * 1000);
       
-      // Datos de ejemplo - reemplazar con llamada a API real
       const datosDeRecursos = [
         { 
           id: 1, 
@@ -60,10 +367,16 @@ const Home = () => {
           tipo: 'hoja_calculo', 
           autor: 'Ana Martínez', 
           fechaCreacion: new Date(ahora.getTime() - 45 * 60 * 1000)
+        },
+        { 
+          id: 4, 
+          nombre: 'Manual de Usuario', 
+          tipo: 'documento', 
+          autor: 'Juan Pérez', 
+          fechaCreacion: new Date(ahora.getTime() - 55 * 60 * 1000)
         }
       ];
       
-      // Filtrar recursos de la última hora
       const recursosRecientes = datosDeRecursos.filter(
         recurso => recurso.fechaCreacion >= unaHoraAtras
       );
@@ -76,17 +389,18 @@ const Home = () => {
     }
   };
 
-  // Cargar recursos automáticamente al montar el componente
   useEffect(() => {
     obtenerRecursosRecientes();
-  }, []); // El array vacío asegura que esto solo se ejecute una vez al montar el componente
+  }, []);
 
-  // Manejar clic en el recuadro de recursos recientes
   const handleTogglePreview = () => {
     setMostrarPreview(!mostrarPreview);
   };
 
-  // Función para formatear la hora (HH:MM)
+  const toggleFilter = () => {
+    setFilterOpen(!filterOpen);
+  };
+
   const formatearHora = (fecha) => {
     return fecha.toLocaleTimeString('es-ES', {
       hour: '2-digit',
@@ -94,7 +408,6 @@ const Home = () => {
     });
   };
 
-  // Obtener el icono correspondiente al tipo de recurso
   const obtenerIcono = (tipo) => {
     switch (tipo) {
       case 'documento':
@@ -108,17 +421,262 @@ const Home = () => {
     }
   };
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  return (
+    <Paper
+      sx={{   
+        p: 3, 
+        borderRadius: 2,
+        mt: 2,
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+        } 
+      }}
+    >
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 1
+      }}>
+        <Typography variant="h6" fontWeight="bold">
+          Recursos Recientes
+        </Typography>
+        
+        <Box>
+          <Tooltip title="Filtrar recursos">
+            <IconButton 
+              size="small" 
+              onClick={toggleFilter}
+              sx={{ mr: 1 }}
+            >
+              <FilterListIcon color="primary" />
+            </IconButton>
+          </Tooltip>
+          
+          <Tooltip title={mostrarPreview ? "Ocultar detalles" : "Mostrar detalles"}>
+            <IconButton 
+              size="small" 
+              onClick={handleTogglePreview}
+              aria-expanded={mostrarPreview}
+              aria-label="toggle resources preview"
+            >
+              {mostrarPreview ? 
+                <ExpandLessIcon color="primary" /> : 
+                <ExpandMoreIcon color="primary" />
+              }
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Box>
+      
+      <Collapse in={filterOpen} timeout="auto">
+        <Box sx={{ 
+          p: 2, 
+          mb: 2, 
+          borderRadius: 1, 
+          bgcolor: '#f5f5f5',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 1
+        }}>
+          <Button size="small" variant="outlined">Todos</Button>
+          <Button size="small" variant="outlined">Documentos</Button>
+          <Button size="small" variant="outlined">Presentaciones</Button>
+          <Button size="small" variant="outlined">Hojas de cálculo</Button>
+        </Box>
+      </Collapse>
+      
+      <Collapse in={mostrarPreview} timeout="auto" unmountOnExit>
+        <Box sx={{ mt: 2, maxHeight: '300px', overflowY: 'auto' }}>
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+            Recursos agregados en la última hora:
+          </Typography>
+          
+          {cargando ? (
+            <Box sx={{ my: 2 }}>
+              {[1, 2, 3].map((item) => (
+                <Box key={item} sx={{ display: 'flex', mb: 2, alignItems: 'center' }}>
+                  <Skeleton variant="circular" width={40} height={40} sx={{ mr: 2 }} />
+                  <Box sx={{ width: '100%' }}>
+                    <Skeleton variant="text" width="80%" height={24} />
+                    <Skeleton variant="text" width="50%" height={20} />
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          ) : recursos.length > 0 ? (
+            <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+              {recursos.map((recurso) => (
+                <ListItem 
+                  key={recurso.id} 
+                  alignItems="flex-start" 
+                  sx={{ 
+                    p: 1, 
+                    borderRadius: 1,
+                    mb: 1,
+                    transition: 'all 0.2s ease',
+                    '&:hover': { 
+                      bgcolor: '#F5F7FF',
+                      transform: 'translateX(5px)' 
+                    } 
+                  }}
+                  button
+                >
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: '#f5f5f5' }}>
+                      {obtenerIcono(recurso.tipo)}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        {recurso.nombre}
+                      </Typography>
+                    }
+                    secondary={
+                      <React.Fragment>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          sx={{ display: 'block', color: 'text.primary' }}
+                        >
+                          {recurso.autor}
+                        </Typography>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          Agregado a las {formatearHora(recurso.fechaCreacion)}
+                        </Typography>
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Box 
+              sx={{   
+                textAlign: 'center', 
+                py: 4, 
+                bgcolor: '#f9f9f9', 
+                borderRadius: 1 
+              }}
+            >
+              <Typography variant="body1" color="text.secondary">
+                No hay recursos agregados en la última hora
+              </Typography>
+              <Button 
+                variant="text" 
+                color="primary" 
+                sx={{ mt: 1 }}
+                onClick={() => navigate('/resource')}
+              >
+                Crear un recurso
+              </Button>
+            </Box>
+          )}
+        </Box>
+      </Collapse>
+      
+      {!mostrarPreview && (
+        <Box sx={{ py: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            {recursos.length > 0 
+              ? `${recursos.length} recursos agregados recientemente`
+              : "No hay recursos recientes para mostrar"}
+          </Typography>
+        </Box>
+      )}
+    </Paper>
+  );
+};
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+// Componente de Categorías Populares
+const PopularCategories = () => {
+  const categories = [
+    { name: 'Tutoriales', count: 24 },
+    { name: 'Documentación', count: 18 },
+    { name: 'Guías', count: 15 },
+    { name: 'Mejores Prácticas', count: 12 },
+    { name: 'Estudios de Caso', count: 9 }
+  ];
 
-  const handleLogout = () => {
-    handleClose();
-    navigate("/login");
+  return (
+    <Fade>
+      <Paper
+        sx={{   
+          p: 3, 
+          borderRadius: 2,
+          height: '100%',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          } 
+        }}
+      >
+        <Typography variant="h6" gutterBottom fontWeight="bold">
+          Categorías
+        </Typography>
+        <Box sx={{ mt: 2 }}>
+          {categories.map((category) => (
+            <Button
+              key={category.name}
+              fullWidth
+              sx={{
+                justifyContent: 'space-between',
+                mb: 1,
+                py: 1,
+                px: 2,
+                textTransform: 'none',
+                color: '#2E3B55',
+                borderRadius: 1,
+                textAlign: 'left',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: '#F5F7FF',
+                  paddingLeft: '16px'
+                }
+              }}
+            >
+              <span>{category.name}</span>
+              <Badge 
+                badgeContent={category.count} 
+                color="primary"
+                sx={{ ml: 1 }}
+              />
+            </Button>
+          ))}
+          
+          <Button
+            fullWidth
+            variant="outlined"
+            color="primary"
+            sx={{
+              mt: 2,
+              textTransform: 'none'
+            }}
+          >
+            Ver todas las categorías
+          </Button>
+          
+        </Box>
+      </Paper>
+    </Fade>
+  );
+};
+
+// Componente principal Home
+const Home = () => {
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
   };
 
   return (
@@ -132,346 +690,85 @@ const Home = () => {
         flexDirection: "column",
       }}
     >
-      <AppBar position="static" sx={{ backgroundColor: "#ffffff", boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 0, color: "#4A90E2", fontWeight: "bold", marginRight: 4 }}>
-            KHub
-          </Typography>
-          
-          <Paper
-            component="form"
-            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400, mr: 2, borderRadius: "20px" }}
-          >
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="Buscar recursos..."
-            />
-            <IconButton type="button" sx={{ p: '10px' }}>
-              <SearchIcon />
-            </IconButton>
-          </Paper>
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<DashboardIcon />}
-            onClick={() => navigate("/dash")}
-            sx={{ mr: 2 }}
-          >
-            Ir a
-          </Button>
-          
-          <IconButton
-            onClick={handleClick}
-            size="small"
-            sx={{ ml: 2 }}
-            aria-controls={open ? 'account-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
-          >
-            <Avatar
-              sx={{
-                width: 40,
-                height: 40,
-                bgcolor: '#4A90E2',
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                }
-              }}
-            >
-              OP
-            </Avatar>
-          </IconButton>
-          
-          <Menu
-            anchorEl={anchorEl}
-            id="account-menu"
-            open={open}
-            onClose={handleClose}
-            onClick={handleClose}
-            PaperProps={{
-              elevation: 0,
-              sx: {
-                overflow: 'visible',
-                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                mt: 1.5,
-                '& .MuiAvatar-root': {
-                  width: 32,
-                  height: 32,
-                  ml: -0.5,
-                  mr: 1,
-                },
-                '&:before': {
-                  content: '""',
-                  display: 'block',
-                  position: 'absolute',
-                  top: 0,
-                  right: 14,
-                  width: 10,
-                  height: 10,
-                  bgcolor: 'background.paper',
-                  transform: 'translateY(-50%) rotate(45deg)',
-                  zIndex: 0,
-                },
-              },
-            }}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-          >
-            <MenuItem>
-              <Avatar /> Perfil
-            </MenuItem>
-            <MenuItem>
-              <AccountCircleIcon sx={{ mr: 1 }} /> Mi cuenta
-            </MenuItem>
-            <Divider />
-            <MenuItem>
-              <SettingsIcon sx={{ mr: 1 }} /> Configuración
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <LogoutIcon sx={{ mr: 1 }} /> Cerrar sesión
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+      <Header onMenuClick={toggleDrawer} />
       
-      <Container sx={{ flexGrow: 0, mt: 4, mb: 4 }}>
+      {isMobile && (
+        <Drawer
+          anchor="left"
+          open={drawerOpen}
+          onClose={toggleDrawer}
+        >
+          <Box
+            sx={{ width: 250 }}
+            role="presentation"
+            onClick={toggleDrawer}
+          >
+            <List>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar sx={{ bgcolor: theme.palette.primary.light }}>
+                    <HomeIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Inicio" />
+              </ListItem>
+              <ListItem button onClick={() => navigate('/resource')}>
+                <ListItemAvatar>
+                  <Avatar sx={{ bgcolor: theme.palette.primary.light }}>
+                    <CreateIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Crear Recurso" />
+              </ListItem>
+              <ListItem button onClick={() => navigate('/save')}>
+                <ListItemAvatar>
+                  <Avatar sx={{ bgcolor: theme.palette.primary.light }}>
+                    <BookmarkIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Mis Guardados" />
+              </ListItem>
+            </List>
+          </Box>
+        </Drawer>
+      )}
+      
+      <Container sx={{ mt: 3, mb: 1 }}>
+        <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+          <Link 
+            color="inherit" 
+            href="" //HomeSweetHome
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              '&:hover': { color: theme.palette.primary.main } 
+            }}
+          >
+            <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+            Inicio
+          </Link>
+        </Breadcrumbs>
       </Container>
 
-      <Container sx={{ flexGrow: 1, mt: 4, mb: 4 }}>
-        <Grid container spacing={4}>
+      <Container sx={{ flexGrow: 1, mb: 4 }}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Zoom>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: 2, backgroundColor: '#4A90E2', color: 'white' }}>
-                <Typography variant="h5" gutterBottom fontWeight="bold">
-                  Panel de Conocimiento
-                </Typography>
-                <Grid container spacing={3} sx={{ mt: 1 }}>
-                  <Grid item xs={12} md={3}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="h4">150</Typography>
-                      <Typography variant="body2">Recursos Compartidos</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="h4">45</Typography>
-                      <Typography variant="body2">Contribuidores</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="h4">89</Typography>
-                      <Typography variant="body2">Recursos Guardados</Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="h4">12</Typography>
-                      <Typography variant="body2">Categorías</Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Paper>
-            </Zoom>
+            <StatsPanel />
           </Grid>
 
           <Grid item xs={12} md={8}>
-            <Fade>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Paper
-                    component="button"
-                    onClick={() => navigate('/resource')}
-                    sx={{
-                      p: 3,
-                      mt: 1.5,
-                      padding: 9.5,
-                      borderRadius: 2,
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s',
-                      '&:hover': {
-                        transform: 'translateY(-5px)',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-                      }
-                    }}
-                  >
-                    <CreateIcon sx={{ fontSize: 40, color: '#FADA7A', mb: 1 }} />
-                    <Typography variant="h6" gutterBottom fontWeight="bold">
-                      Crear Recurso
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Comparte documentación, tutoriales o guías útiles
-                    </Typography>
-                  </Paper>
-                </Grid>
-                
-                <Grid item xs={12} sm={6}>
-                  <Paper
-                    component="button"
-                    sx={{
-                      p: 3,  
-                      mt: 1.5,
-                      padding: 9.5,
-                      paddingLeft: 13,         
-                      borderRadius: 2,
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s',
-                      '&:hover': {
-                        transform: 'translateY(-5px)',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-                      }
-                    }}
-                  >
-                    <BookmarkIcon sx={{ fontSize: 40, color: '#55AD9B', mb: 1 }} />
-                    <Typography variant="h6" gutterBottom fontWeight="bold">
-                      Mis Guardados
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Accede a tus recursos guardados
-                    </Typography>
-                  </Paper>
-                </Grid>
-
-                <Grid item xs={12}>
-                  {/* Componente de Recursos Recientes modificado para carga automática */}
-                  <Paper
-                    sx={{   
-                      p: 3, 
-                      borderRadius: 2,
-                      paddingRight: 5,
-                      mt: 1.5,
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s',
-                      '&:hover': {
-                        transform: 'translateY(-5px)',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-                      } 
-                    }}
-                    onClick={handleTogglePreview}
-                  >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="h6" gutterBottom fontWeight="bold">
-                        Recursos Recientes
-                      </Typography>
-                      {mostrarPreview ? 
-                        <ExpandLessIcon sx={{ color: '#4A90E2' }} /> : 
-                        <ExpandMoreIcon sx={{ color: '#4A90E2' }} />
-                      }
-                    </Box>
-                    
-                    <Collapse in={mostrarPreview} timeout="auto" unmountOnExit>
-                      <Box sx={{ mt: 2, maxHeight: '300px', overflowY: 'auto' }}>
-                        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
-                          Recursos agregados en la última hora:
-                        </Typography>
-                        
-                        {cargando ? (
-                          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-                            <CircularProgress size={28} sx={{ color: '#4A90E2' }} />
-                          </Box>
-                        ) : recursos.length > 0 ? (
-                          <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-                            {recursos.map((recurso) => (
-                              <ListItem 
-                                key={recurso.id} 
-                                alignItems="flex-start" 
-                                sx={{ 
-                                  p: 1, 
-                                  borderRadius: 1,
-                                  '&:hover': { bgcolor: '#F5F7FF' } 
-                                }}
-                              >
-                                <ListItemAvatar>
-                                  <Avatar sx={{ bgcolor: '#f5f5f5' }}>
-                                    {obtenerIcono(recurso.tipo)}
-                                  </Avatar>
-                                </ListItemAvatar>
-                                <ListItemText
-                                  primary={recurso.nombre}
-                                  secondary={
-                                    <React.Fragment>
-                                      <Typography
-                                        component="span"
-                                        variant="body2"
-                                        sx={{ display: 'block', color: 'text.primary' }}
-                                      >
-                                        {recurso.autor}
-                                      </Typography>
-                                      <Typography
-                                        component="span"
-                                        variant="body2"
-                                        color="text.secondary"
-                                      >
-                                        Agregado a las {formatearHora(recurso.fechaCreacion)}
-                                      </Typography>
-                                    </React.Fragment>
-                                  }
-                                />
-                              </ListItem>
-                            ))}
-                          </List>
-                        ) : (
-                          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-                            No hay recursos agregados en la última hora
-                          </Typography>
-                        )}
-                      </Box>
-                    </Collapse>
-                    
-                    {!mostrarPreview && (
-                      <Typography variant="body2" color="text.secondary">
-                        {recursos.length > 0 
-                          ? `${recursos.length} recursos agregados recientemente`
-                          : "No hay recursos recientes para mostrar"}
-                      </Typography>
-                    )}
-                  </Paper>
-                  {/* Fin del componente de Recursos Recientes modificado */}
-                </Grid>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <ActionCards />
               </Grid>
-            </Fade>
+              <Grid item xs={12}>
+                <RecentResources />
+              </Grid>
+            </Grid>
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <Fade>
-              <Paper
-                sx={{   
-                        p: 3, 
-                        borderRadius: 2,
-                        mt: 1.5,
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s',
-                        '&:hover': {
-                            transform: 'translateY(-5px)',
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-                        } 
-                      }}>
-                <Typography variant="h6" gutterBottom fontWeight="bold">
-                  Categorías Populares
-                </Typography>
-                <Box sx={{ mt: 2 }}>
-                  {['Tutoriales', 'Documentación', 'Guías', 'Mejores Prácticas'].map((category) => (
-                    <Button
-                      key={category}
-                      fullWidth
-                      sx={{
-                        justifyContent: 'flex-start',
-                        mb: 1,
-                        textTransform: 'none',
-                        color: '#2E3B55'
-                      }}
-                    >
-                      {category}
-                    </Button>
-                  ))}
-                </Box>
-              </Paper>
-            </Fade>
+            <PopularCategories />
           </Grid>
         </Grid>
       </Container>

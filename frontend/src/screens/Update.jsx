@@ -1,196 +1,158 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Fade } from 'react-awesome-reveal';
+import { 
+  Box, 
+  TextField, 
+  Button, 
+  Typography, 
+  Container, 
+  IconButton, 
   Paper,
-  TextField,
-  Typography,
-  IconButton,
-  Chip,
-  useMediaQuery,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  Divider,
-  MenuItem,
-  Tooltip,
-  Snackbar,
-  Alert,
-  CircularProgress,
+  Grid,
   FormControl,
   InputLabel,
   Select,
+  MenuItem,
+  Divider,
+  Chip,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListItemSecondaryAction,
+  Tooltip,
   Badge,
-  Avatar,
-  LinearProgress
+  Snackbar,
+  Alert,
+  CircularProgress,
+  useMediaQuery
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Preview as PreviewIcon,
-  CloudUpload as CloudUploadIcon,
+import { 
   ArrowBack as ArrowBackIcon,
-  InsertDriveFile as FileIcon,
   Delete as DeleteIcon,
-  Info as InfoIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
+  CloudUpload as CloudUploadIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-  Star as StarIcon,
-  LocalOffer as TagIcon,
-  Check as CheckIcon
+  Tag as TagIcon,
+  Info as InfoIcon,
+  Preview as PreviewIcon,
+  InsertDriveFile as FileIcon,
+  Add as AddIcon
 } from '@mui/icons-material';
-import { Fade, Slide } from "react-awesome-reveal";
-import { useNavigate } from "react-router-dom";
 
-const Resource = () => {
+const Update = () => {
   const navigate = useNavigate();
-  const isMobile = useMediaQuery("(max-width:600px)");
+  const isMobile = useMediaQuery('(max-width:600px)');
   const fileInputRef = useRef(null);
-  
-  // Estado para formulario
+
+  // Estado para el recurso que se está editando
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
+    title: 'Guía de Recursos Educativos',
+    description: 'Colección de materiales didácticos para estudiantes de nivel secundario.',
+    category: 'education',
     visibility: 'public'
   });
+
+  // Estados adicionales
   const [formErrors, setFormErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [newTag, setNewTag] = useState('');
+  const [tags, setTags] = useState(['educación', 'recursos', 'didáctico']);
+  const [suggestedTags, setSuggestedTags] = useState(['estudiantes', 'secundaria', 'materiales', 'aprendizaje', 'aula', 'digital']);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'info'
+    severity: 'success'
   });
-  
-  // Estado para manejar las etiquetas
-  const [tags, setTags] = useState([]);
-  const [newTag, setNewTag] = useState('');
-  const [suggestedTags, setSuggestedTags] = useState([
-    'educación', 'aprendizaje', 'material', 'práctica', 'tutorial', 'guía', 'ejercicios', 'ejemplos'
-  ]);
 
-  // Estado para manejar los archivos
-  const [files, setFiles] = useState([]);
-  const [previewMode, setPreviewMode] = useState(false);
-  
-  // Estado para manejar el progreso de carga
-  const [uploadProgress, setUploadProgress] = useState({
-    visible: false,
-    percent: 0,
-    filesUploaded: 0,
-    totalFiles: 0
-  });
-  
+  // Simular carga de datos del recurso existente
+  useEffect(() => {
+    // Simulamos la carga del recurso con un timeout
+    const timer = setTimeout(() => {
+      // Aquí cargaríamos los datos reales del recurso
+      setFiles([
+        new File(["dummy content"], "documento1.pdf", { type: "application/pdf" }),
+        new File(["dummy content"], "imagen.jpg", { type: "image/jpeg" })
+      ]);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Categorías disponibles
   const categories = [
-    { value: 'educacion', label: 'Educación' },
-    { value: 'tecnologia', label: 'Tecnología' },
-    { value: 'ciencia', label: 'Ciencia' },
-    { value: 'arte', label: 'Arte' },
-    { value: 'idiomas', label: 'Idiomas' },
-    { value: 'matematicas', label: 'Matemáticas' },
-    { value: 'negocios', label: 'Negocios' },
+    { value: 'education', label: 'Educación' },
+    { value: 'technology', label: 'Tecnología' },
+    { value: 'science', label: 'Ciencia' },
+    { value: 'art', label: 'Arte' },
+    { value: 'literature', label: 'Literatura' }
   ];
-  
-  // Manejar cambios en el formulario
+
+  // Manejadores de eventos
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData({ ...formData, [name]: value });
     
-    // Limpiar error cuando el usuario escribe
-    if (formErrors[name]) {
-      setFormErrors({
-        ...formErrors,
-        [name]: null
-      });
+    // Limpiar error si el campo ahora tiene valor
+    if (value.trim() !== '') {
+      setFormErrors({ ...formErrors, [name]: '' });
     }
   };
 
-  // Función para manejar la adición de etiquetas
+  const handleFileUpload = (e) => {
+    const newFiles = Array.from(e.target.files);
+    setFiles([...files, ...newFiles]);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    setFiles([...files, ...droppedFiles]);
+  };
+
+  const handleDeleteFile = (fileToDelete) => {
+    setFiles(files.filter(file => file !== fileToDelete));
+  };
+
+  const handleDeleteAllFiles = () => {
+    setFiles([]);
+  };
+
   const handleAddTag = () => {
-    if (newTag.trim() !== '' && !tags.includes(newTag.trim())) {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
       setTags([...tags, newTag.trim()]);
-      setNewTag(''); // Limpiar el campo después de agregar
+      setNewTag('');
     }
   };
 
-  // Función para manejar el evento de tecla Enter
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && newTag.trim()) {
       e.preventDefault();
       handleAddTag();
     }
   };
 
-  // Función para eliminar etiquetas
   const handleDeleteTag = (tagToDelete) => {
-    setTags(tags.filter((tag) => tag !== tagToDelete));
+    setTags(tags.filter(tag => tag !== tagToDelete));
   };
 
-  // Función para manejar la carga de archivos
-  const handleFileUpload = (event) => {
-    const newFiles = Array.from(event.target.files);
-    setFiles(prevFiles => [...prevFiles, ...newFiles]);
-    
-    // Limpia el input para permitir cargar el mismo archivo múltiples veces
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  // Función para manejar la eliminación de archivos
-  const handleDeleteFile = (fileToDelete) => {
-    setFiles(files.filter(file => file !== fileToDelete));
-  };
-
-  // Función para eliminar todos los archivos
-  const handleDeleteAllFiles = () => {
-    setFiles([]);
-  };
-
-  // Función para manejar el arrastrar y soltar
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files);
-      setFiles(prevFiles => [...prevFiles, ...newFiles]);
-    }
-  };
-
-  // Función para formatear el tamaño del archivo
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  // Validar formulario
   const validateForm = () => {
     const errors = {};
     
     if (!formData.title.trim()) {
-      errors.title = 'El título es obligatorio';
+      errors.title = 'El título es requerido';
     }
     
     if (!formData.description.trim()) {
-      errors.description = 'La descripción es obligatoria';
+      errors.description = 'La descripción es requerida';
     }
     
     if (!formData.category) {
@@ -201,239 +163,139 @@ const Resource = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Función para simular el envío de archivos con progreso
-  const simulateFileUpload = (formData) => {
-    return new Promise((resolve, reject) => {
-      // Simulación del tiempo que toma subir los archivos
-      const totalFiles = files.length;
-      const totalSize = files.reduce((acc, file) => acc + file.size, 0);
-      
-      // Iniciar progreso
-      setUploadProgress({
-        visible: true,
-        percent: 0,
-        filesUploaded: 0,
-        totalFiles: totalFiles
-      });
-      
-      // Simular incremento de progreso
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 5;
-        
-        // Calcular archivos completados basados en el progreso
-        const filesComplete = Math.floor((progress / 100) * totalFiles);
-        
-        setUploadProgress({
-          visible: true,
-          percent: progress,
-          filesUploaded: filesComplete,
-          totalFiles: totalFiles
-        });
-        
-        if (progress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setUploadProgress({ visible: false, percent: 0, filesUploaded: 0, totalFiles: 0 });
-            resolve({ success: true });
-          }, 500);
-        }
-      }, 300);
-    });
-  };
-
-  // Manejar guardado
-  const handleSave = async () => {
+  const handleUpdate = () => {
     if (validateForm()) {
       setIsLoading(true);
       
-      try {
-        // Crear un objeto FormData para enviar archivos y datos del formulario
-        const formDataToSend = new FormData();
-        
-        // Agregar datos del formulario
-        formDataToSend.append('title', formData.title);
-        formDataToSend.append('description', formData.description);
-        formDataToSend.append('category', formData.category);
-        formDataToSend.append('visibility', formData.visibility);
-        
-        // Agregar etiquetas como un array en formato JSON
-        formDataToSend.append('tags', JSON.stringify(tags));
-        
-        // Agregar cada archivo
-        files.forEach((file, index) => {
-          formDataToSend.append(`file-${index}`, file);
-        });
-        
-        // Simular el envío a un servidor
-        // En un caso real, reemplazarías esto con una llamada fetch o axios
-        await simulateFileUpload(formDataToSend);
-        
+      // Simular actualización
+      setTimeout(() => {
+        setIsLoading(false);
         setSnackbar({
           open: true,
-          message: 'Recurso y archivos guardados exitosamente',
+          message: 'Recurso actualizado correctamente',
           severity: 'success'
         });
         
-        // Redirigir a otra página o resetear el formulario
-        // navigate('/recursos');
-        
-      } catch (error) {
-        setSnackbar({
-          open: true,
-          message: `Error al guardar: ${error.message}`,
-          severity: 'error'
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      setSnackbar({
-        open: true,
-        message: 'Por favor completa todos los campos requeridos',
-        severity: 'error'
-      });
+        // Redirigir después de unos segundos
+        setTimeout(() => navigate(-1), 2000);
+      }, 1500);
     }
   };
 
-  // Manejar vista previa
-  const togglePreview = () => {
-    setPreviewMode(!previewMode);
+  const handleDelete = () => {
+    // Confirmar antes de eliminar
+    if (window.confirm('¿Está seguro de eliminar este recurso? Esta acción no se puede deshacer.')) {
+      setIsLoading(true);
+      
+      // Simular eliminación
+      setTimeout(() => {
+        setIsLoading(false);
+        setSnackbar({
+          open: true,
+          message: 'Recurso eliminado correctamente',
+          severity: 'info'
+        });
+        
+        // Redirigir después de unos segundos
+        setTimeout(() => navigate(-1), 2000);
+      }, 1500);
+    }
   };
 
-  // Componente para mostrar el progreso de la carga
-  const UploadProgressIndicator = () => {
-    if (!uploadProgress.visible) return null;
-    
-    return (
-      <Box sx={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        bgcolor: 'white',
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
-        p: 2,
-        zIndex: 1000,
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <CloudUploadIcon sx={{ mr: 1, color: '#4A90E2' }} />
-          <Typography variant="body1" sx={{ flexGrow: 1 }}>
-            Subiendo archivos ({uploadProgress.filesUploaded}/{uploadProgress.totalFiles})
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {uploadProgress.percent}%
+  // Función para formatear el tamaño de archivos
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Vista previa del recurso
+  const renderPreview = () => {
+    if (!formData.title) {
+      return (
+        <Box sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>
+          <Typography variant="body2">
+            Complete el formulario para ver la vista previa
           </Typography>
         </Box>
-        <LinearProgress 
-          variant="determinate" 
-          value={uploadProgress.percent} 
-          sx={{ 
-            height: 8, 
-            borderRadius: 4,
-            bgcolor: '#E1EFFF',
-            '& .MuiLinearProgress-bar': {
-              bgcolor: '#4A90E2'
-            }
-          }} 
-        />
-      </Box>
-    );
-  };
-
-  // Renderizar vista previa
-  const renderPreview = () => {
+      );
+    }
+    
     return (
-      <Box sx={{ p: 2 }}>
-        {formData.title ? (
-          <>
-            <Typography variant="h5" gutterBottom fontWeight="bold" color="#2E3B55">
-              {formData.title}
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6" gutterBottom color="#2E3B55" fontWeight="bold">
+          {formData.title}
+        </Typography>
+        
+        <Box sx={{ mb: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
+          <Chip 
+            size="small" 
+            label={categories.find(cat => cat.value === formData.category)?.label || ''} 
+            sx={{ bgcolor: '#4A90E2', color: 'white' }} 
+          />
+          <Chip 
+            size="small" 
+            icon={formData.visibility === 'public' ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+            label={formData.visibility === 'public' ? 'Público' : 'Privado'} 
+            variant="outlined"
+          />
+        </Box>
+        
+        <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+          {formData.description}
+        </Typography>
+        
+        {tags.length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+              Etiquetas:
             </Typography>
-            
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Chip 
-                icon={<StarIcon />} 
-                label={formData.category ? categories.find(c => c.value === formData.category)?.label : 'Sin categoría'} 
-                sx={{ mr: 1, bgcolor: '#4A90E2', color: 'white' }}
-              />
-              <Chip 
-                icon={formData.visibility === 'public' ? <VisibilityIcon /> : <VisibilityOffIcon />} 
-                label={formData.visibility === 'public' ? 'Público' : 'Privado'} 
-                variant="outlined"
-                sx={{ mr: 1 }}
-              />
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {tags.map((tag) => (
+                <Chip
+                  key={tag}
+                  label={tag}
+                  size="small"
+                  sx={{
+                    borderRadius: 1,
+                    fontSize: '0.7rem',
+                    height: 24,
+                    bgcolor: '#F0F7FF',
+                    color: '#4A90E2',
+                  }}
+                />
+              ))}
             </Box>
-            
-            <Divider sx={{ my: 2 }} />
-            
-            <Typography variant="body1" sx={{ mb: 3, whiteSpace: 'pre-line' }}>
-              {formData.description}
+          </Box>
+        )}
+        
+        {files.length > 0 && (
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+              Archivos ({files.length}):
             </Typography>
-            
-            {tags.length > 0 && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Etiquetas:
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {tags.map((tag) => (
-                    <Chip
-                      key={tag}
-                      label={tag}
-                      size="small"
-                      sx={{
-                        borderRadius: 1,
-                        bgcolor: '#F0F7FF',
-                        color: '#4A90E2',
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            )}
-            
-            {files.length > 0 && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Archivos adjuntos ({files.length}):
-                </Typography>
-                <List dense>
-                  {files.slice(0, 3).map((file, index) => (
-                    <ListItem key={index} sx={{ px: 0, py: 0.5 }}>
-                      <ListItemIcon sx={{ minWidth: 36 }}>
-                        <FileIcon sx={{ color: '#4A90E2', fontSize: 20 }} />
-                      </ListItemIcon>
-                      <ListItemText 
-                        primary={file.name}
-                        secondary={formatFileSize(file.size)}
-                        primaryTypographyProps={{ variant: 'body2' }}
-                        secondaryTypographyProps={{ variant: 'caption' }}
-                      />
-                    </ListItem>
-                  ))}
-                  {files.length > 3 && (
-                    <Typography variant="caption" color="text.secondary">
-                      Y {files.length - 3} archivos más...
-                    </Typography>
-                  )}
-                </List>
-              </Box>
-            )}
-          </>
-        ) : (
-          <Box sx={{ 
-            height: '100%', 
-            display: 'flex', 
-            flexDirection: 'column',
-            alignItems: 'center', 
-            justifyContent: 'center',
-            color: 'text.secondary'
-          }}>
-            <PreviewIcon sx={{ fontSize: 40, mb: 2, color: '#4A90E2' }} />
-            <Typography>
-              Completa el formulario para ver la vista previa
-            </Typography>
+            <List dense sx={{ bgcolor: 'white', borderRadius: 1, border: '1px solid #E0E0E0', mb: 0 }}>
+              {files.slice(0, 3).map((file, index) => (
+                <ListItem key={index} sx={{ py: 0.5, px: 1 }}>
+                  <ListItemIcon sx={{ minWidth: 30 }}>
+                    <FileIcon sx={{ fontSize: 18, color: '#4A90E2' }} />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={<Typography variant="body2" noWrap>{file.name}</Typography>}
+                    sx={{ m: 0 }}
+                  />
+                </ListItem>
+              ))}
+              {files.length > 3 && (
+                <ListItem sx={{ py: 0.5, px: 1 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    +{files.length - 3} archivos más
+                  </Typography>
+                </ListItem>
+              )}
+            </List>
           </Box>
         )}
       </Box>
@@ -452,6 +314,7 @@ const Resource = () => {
         pb: 4
       }}
     >
+        
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         {/* Encabezado con botón de regreso */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
@@ -462,7 +325,7 @@ const Resource = () => {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h5" fontWeight="bold" color="#2E3B55">
-            Crear Nuevo Recurso
+            Editar Recurso
           </Typography>
         </Box>
 
@@ -756,7 +619,7 @@ const Resource = () => {
                     </Button>
                   </Paper>
                   
-                  {/* Lista de archivos mejorada */}
+                  {/* Lista de archivos */}
                   {files.length > 0 && (
                     <Paper
                       elevation={0}
@@ -845,6 +708,27 @@ const Resource = () => {
                   gap: 2,
                   mt: 2
                 }}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={handleDelete}
+                    disabled={isLoading}
+                    sx={{
+                      borderRadius: 2,
+                      borderColor: '#FF6B6B',
+                      color: '#FF6B6B',
+                      '&:hover': {
+                        bgcolor: '#FFF0F0',
+                        borderColor: '#FF5252'
+                      },
+                      order: isMobile ? 2 : 1,
+                      width: isMobile ? '100%' : 'auto'
+                    }}
+                  >
+                    Eliminar Recurso
+                  </Button>
+                  
                   <Box sx={{
                     display: 'flex',
                     gap: 2,
@@ -871,7 +755,7 @@ const Resource = () => {
                       variant="contained"
                       fullWidth={isMobile}
                       startIcon={isLoading ? null : <SaveIcon />}
-                      onClick={handleSave}
+                      onClick={handleUpdate}
                       disabled={isLoading}
                       sx={{
                         borderRadius: 2,
@@ -883,7 +767,7 @@ const Resource = () => {
                     >
                       {isLoading ? (
                         <CircularProgress size={24} color="inherit" />
-                      ) : 'Guardar'}
+                      ) : 'Guardar Cambios'}
                     </Button>
                   </Box>
                 </Box>
@@ -952,4 +836,4 @@ const Resource = () => {
   );
 };
 
-export default Resource;
+export default Update;
