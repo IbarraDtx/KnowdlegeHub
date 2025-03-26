@@ -27,6 +27,9 @@ const createContent = async (req, res) => {
 const getAllContent = async (req, res) => {
     try{
         const contents = await Content.find().populate('createdBy', 'username');
+
+        console.log("Datos recuperados: ", contents);
+
         res.status(200).json({ success: true, data: contents });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
