@@ -6,7 +6,7 @@ const createContent = async (req, res) => {
 
         console.log("Archivo recibido: ", req.file);
 
-        const fileUrl = req.file ? req.file.secure_url : null; //URL a CLOUDINARY
+        const fileUrl = req.file ? req.file.path : null; //URL a CLOUDINARY
 
         const newContent = await Content.create({
             title,
