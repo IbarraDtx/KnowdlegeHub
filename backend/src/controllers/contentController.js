@@ -11,7 +11,7 @@ const createContent = async (req, res) => {
             type,
             tags,
             category,
-            file: filePath, //Con esto guardamos la ruta del archivo en la BD
+            file: fileUrl, //Con esto guardamos la ruta del archivo en la BD
             createdBy: req.user.id,
         });
 
