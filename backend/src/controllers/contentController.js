@@ -4,7 +4,7 @@ const createContent = async (req, res) => {
     try{
         const { title, description, type, tags, category } = req.body;
 
-        console.log(req.file);
+        console.log("Archivo recibido: ", req.file);
 
         const fileUrl = req.file ? req.file.secure_url : null; //URL a CLOUDINARY
 
