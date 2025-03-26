@@ -6,8 +6,7 @@ const createContent = async (req, res) => {
 
         console.log(req.file);
 
-        const fileUrl = req.file ? req.file.path : null; //Ruta del archivo que se sube
-        const secureUrl = req.file ? req.file.secure_url : null; //URL a CLOUDINARY
+        const fileUrl = req.file ? req.file.secure_url : null; //URL a CLOUDINARY
 
         const newContent = await Content.create({
             title,
@@ -15,7 +14,7 @@ const createContent = async (req, res) => {
             type,
             tags,
             category,
-            file: secureUrl, //Con esto guardamos la ruta del archivo en la BD
+            file: fileUrl, //Con esto guardamos la ruta del archivo en la BD
             createdBy: req.user.id,
         });
 

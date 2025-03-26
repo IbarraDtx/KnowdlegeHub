@@ -10,6 +10,7 @@ const contentSchema = new moongose.Schema({
     },
     tags: [{ type: String }],
     category: { type: String, required: true },
+    file: { type: String },
     createdBy: { type: moongose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
