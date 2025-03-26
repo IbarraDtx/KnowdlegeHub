@@ -3,7 +3,7 @@ const Content = require('../models/Content');
 const createContent = async (req, res) => {
     try{
         const { title, description, type, tags, category } = req.body;
-        const filePath = req.file ? req.file.path : null; //Ruta del archivo que se sube
+        const fileUrl = req.file ? req.file.path : null; //Ruta del archivo que se sube
 
         const newContent = await Content.create({
             title,
